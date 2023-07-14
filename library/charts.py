@@ -21,7 +21,7 @@ def candle_bar(data_chart: pd.DataFrame):
     # Add candlestick trace to the first row
     fig.add_trace(
         go.Candlestick(
-            x=data_chart.Date,
+            x=data_chart.index,
             open=data_chart.Open,
             high=data_chart.High,
             low=data_chart.Low,
@@ -31,7 +31,7 @@ def candle_bar(data_chart: pd.DataFrame):
 
     # Add volume bars trace to the second row
     fig.add_trace(
-        go.Bar(x=data_chart.Date, y=data_chart.Volume),
+        go.Bar(x=data_chart.index, y=data_chart.Volume),
         row=2, col=1
     )
 
@@ -57,7 +57,7 @@ def line_chart(data_chart: pd.DataFrame, feature='Close'):
     fig = go.Figure()
 
     # Add a scatter trace for the specified feature
-    fig.add_trace(go.Scatter(x=data_chart.Date, y=data_chart[feature], mode='lines', name='Stock Prices'))
+    fig.add_trace(go.Scatter(x=data_chart.index, y=data_chart[feature], mode='lines', name='Stock Prices'))
 
     # Update the layout with title and axis labels
     fig.update_layout(

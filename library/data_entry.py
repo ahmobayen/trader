@@ -25,7 +25,7 @@ def get_data(ticker, start_date='2010-01-01', end_date=TODAY, interval='1d') -> 
     data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
 
     # Move date from index to column
-    data = data.reset_index()
+    # data = data.reset_index()
 
     # Calculate Relative Strength Index (RSI)
     data['RSI'] = ta.rsi(data.Close, length=15)
@@ -41,7 +41,7 @@ def get_data(ticker, start_date='2010-01-01', end_date=TODAY, interval='1d') -> 
     data.dropna(inplace=True)
 
     # Reset indexing
-    data.reset_index(drop=True, inplace=True)
+    # data.reset_index(drop=True, inplace=True)
 
     return data
 
