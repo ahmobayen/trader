@@ -66,3 +66,18 @@ def line_chart(data_chart: pd.DataFrame, feature='Close'):
         yaxis=dict(title=feature)
     )
     return fig
+
+
+def macd_chart(data_chart: pd.DataFrame):
+    # Create a line plot for the 'macd' column
+    line_trace = go.Scatter(x=data_chart.index, y=data_chart.MACD_12_26_9, name='MACD')
+    Historgram = go.Bar(x=data_chart.index, y=data_chart.MACDh_12_26_9, name='Historgram')
+    Signal = go.Scatter(x=data_chart.index, y=data_chart.MACDs_12_26_9, name='Signal')
+
+    # Create the figure and add the traces
+    fig = go.Figure(data=[line_trace, Historgram, Signal])
+
+    # Add layout and axis labels
+    fig.update_layout(title='Data with MACD', xaxis_title='Index', yaxis_title='Price')
+
+    return fig

@@ -35,10 +35,15 @@ def get_data(ticker, start_date='2010-01-01', end_date=TODAY, interval='1d') -> 
         data[f'EMA_{period}'] = ta.ema(data.Close, length=period)
 
     # Calculate price changes
-    data['PctChange'] = data.Close.pct_change(periods=-1)
+    data['Shift'] = data.Close.diff(periods=1)
+
+    # Calculate Moving average convergence/divergence (MACD)
+    data = pd.concat([data, ta.macd(data.Close)], axis=1)
 
     # Drop rows with missing values
     data.dropna(inplace=True)
+
+    data['Target'] = data.Close + data.Shift
 
     # Reset indexing
     # data.reset_index(drop=True, inplace=True)

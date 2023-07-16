@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from library import N_PAST, N_FUTURE, TIME_STEPS
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from library import N_PAST, N_FUTURE, LOOKBACKS
 
 
 def normalized_split_data(data: pd.DataFrame, features: list[str]):
@@ -24,14 +24,13 @@ def normalized_split_data(data: pd.DataFrame, features: list[str]):
         raise ValueError("No features provided.")
 
     # Initialize the StandardScaler object
-    scaler = StandardScaler()
+    scaler = MinMaxScaler()
 
     # Select the relevant columns from the input data
-    df_for_training = data[features].astype(float)
+    df_for_training = pd.concat([data[features].astype(float), data.Target.astype(float)], axis=1)
 
     # Perform feature scaling on the training data
     df_for_training_scaled = scaler.fit_transform(df_for_training)
-    print(df_for_training_scaled)
 
     # Split the scaled data into input-output pairs for training
     train_x = []
@@ -40,7 +39,7 @@ def normalized_split_data(data: pd.DataFrame, features: list[str]):
     # Creating Time Slots
     for i in range(N_PAST, len(df_for_training_scaled) - N_FUTURE + 1):
         train_x.append(df_for_training_scaled[i - N_PAST:i, 0:df_for_training.shape[1]])
-        train_y.append(df_for_training_scaled[i + N_FUTURE - 1:i + N_FUTURE, 0])
+        train_y.append(df_for_training_scaled[i + N_FUTURE - 1:i + N_FUTURE, -1])
 
     # Convert Time Slots to numpy
     train_x = np.array(train_x)
