@@ -81,3 +81,34 @@ def macd_chart(data_chart: pd.DataFrame):
     fig.update_layout(title='Data with MACD', xaxis_title='Index', yaxis_title='Price')
 
     return fig
+
+
+def model_evaluation(history):
+    # Create the figure
+    fig = go.Figure()
+
+    # Add the training loss trace
+    fig.add_trace(go.Scatter(
+        x=list(range(len(history.history['loss']))),
+        y=history.history['loss'],
+        mode='lines',
+        name='Training loss'
+    ))
+
+    # Add the validation loss trace
+    fig.add_trace(go.Scatter(
+        x=list(range(len(history.history['val_loss']))),
+        y=history.history['val_loss'],
+        mode='lines',
+        name='Validation loss'
+    ))
+
+    # Set the layout of the plot
+    fig.update_layout(
+        title='Training and Validation Loss',
+        xaxis_title='Epoch',
+        yaxis_title='Loss'
+    )
+
+    # Display the plot
+    fig.show()

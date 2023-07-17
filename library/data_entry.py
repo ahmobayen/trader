@@ -6,7 +6,7 @@ import pandas_ta as ta
 from library import EMA_PERIODS, TODAY
 
 
-def get_data(ticker, start_date='2010-01-01', end_date=TODAY, interval='1d') -> pd.DataFrame:
+def get_data(ticker, start_date='2010-01-01', end_date=TODAY, interval='1d', is_raw=False) -> pd.DataFrame:
     """
     Retrieves financial data for a specified ticker from Yahoo Finance and performs technical analysis.
 
@@ -23,9 +23,13 @@ def get_data(ticker, start_date='2010-01-01', end_date=TODAY, interval='1d') -> 
 
     # Get data from Yahoo Finance
     data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
-
     # Move date from index to column
-    # data = data.reset_index()
+    data = data.reset_index()
+
+    if is_raw is True:
+        data['Shift'] = data.Close.diff(periods=1)
+        data['Target'] = data.Close + data.Shift
+        return data
 
     # Calculate Relative Strength Index (RSI)
     data['RSI'] = ta.rsi(data.Close, length=15)
@@ -46,11 +50,11 @@ def get_data(ticker, start_date='2010-01-01', end_date=TODAY, interval='1d') -> 
     data['Target'] = data.Close + data.Shift
 
     # Reset indexing
-    # data.reset_index(drop=True, inplace=True)
+    data.reset_index(drop=True, inplace=True)
 
     return data
 
 
 if __name__ == '__main__':
-    test_data = get_data(ticker = 'NFLX')
+    test_data = get_data(ticker = 'NFLX', start_date='2023-01-02', end_date='2023-02-01',)
     print(test_data)
