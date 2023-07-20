@@ -24,11 +24,12 @@ def get_data(ticker, start_date='2010-01-01', end_date=TODAY, interval='1d', is_
     # Get data from Yahoo Finance
     data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
     # Move date from index to column
-    data = data.reset_index()
+    # data = data.reset_index()
+    data = data.drop(columns=['Adj Close'])
 
     if is_raw is True:
         data['Shift'] = data.Close.diff(periods=1)
-        data['Target'] = data.Close + data.Shift
+        # data['Target'] = data.Close + data.Shift
         return data
 
     # Calculate Relative Strength Index (RSI)
@@ -47,10 +48,10 @@ def get_data(ticker, start_date='2010-01-01', end_date=TODAY, interval='1d', is_
     # Drop rows with missing values
     data.dropna(inplace=True)
 
-    data['Target'] = data.Close + data.Shift
+    # data['Target'] = data.Close + data.Shift
 
     # Reset indexing
-    data.reset_index(drop=True, inplace=True)
+    # data.reset_index(drop=True, inplace=True)
 
     return data
 

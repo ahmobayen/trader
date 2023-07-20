@@ -112,3 +112,26 @@ def model_evaluation(history):
 
     # Display the plot
     fig.show()
+
+
+def prediction_chart(prediction_data, original_data):
+    # Create traces for each DataFrame
+    trace1 = go.Scatter(x=prediction_data['Date'], y=prediction_data['Close'], mode='lines+markers', name='Predict')
+    trace2 = go.Scatter(x=original_data['Date'], y=original_data['Close'], mode='lines+markers', name='Original')
+
+    # Create the figure and add the traces
+    fig = go.Figure(data=[trace1, trace2])
+
+    # Update the layout for better appearance (optional)
+    fig.update_layout(
+        title='Stock Prices',
+        xaxis_title='Date',
+        yaxis_title='Close Price',
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
+        plot_bgcolor='white',
+        xaxis=dict(showline=True, linewidth=1, linecolor='lightgray', mirror=True),
+        yaxis=dict(showline=True, linewidth=1, linecolor='lightgray', mirror=True),
+    )
+
+    # Show the plot
+    fig.show()

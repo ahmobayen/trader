@@ -1,65 +1,42 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, QuantileTransformer
-from library import N_PAST, N_FUTURE, LOOKBACKS
+from library import LOOK_BACKS, SCALER
 
 
-def normalized_split_data(data: pd.DataFrame, features: list[str]):
-    """
-    Splits the data into normalized training samples and corresponding target values.
+def normalized_split_data(data: pd.DataFrame, features: list[str], is_evalute=False):
+    # Choose only Close price of stock
+    dataset = data.filter(features).values
 
-    Args:
-        data (pd.DataFrame): The input data containing features and target variable.
-        features (list[str]): List of feature column names.
+    # Scale our data from 0 to 1
+    scaled_data = SCALER.transform(dataset) if is_evalute else SCALER.fit_transform(dataset)
 
-    Returns:
-        tuple: A tuple containing the normalized training samples, target values, and scaler object.
+    # Train data - 80%, test - 20%
+    training_data_len = int(np.ceil(len(dataset) * 0.80))
 
-    Raises:
-        ValueError: If the length of features is 0 or if the specified feature columns are not found in the data.
+    # Use our scaled data for training
+    x_train, y_train = [], []
 
-    """
+    for i in range(LOOK_BACKS, len(scaled_data)):
+        x_train.append(scaled_data[i - LOOK_BACKS:i, 0])
+        y_train.append(scaled_data[i, 0])
 
-    if len(features) == 0:
-        raise ValueError("No features provided.")
+    x_train, y_train = np.array(x_train), np.array(y_train)
 
-    # Initialize the StandardScaler object
-    scaler = QuantileTransformer(random_state=0)
+    # Reshape input data for LSTM
+    x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
 
-    # Select the relevant columns from the input data
+    if is_evalute:
+        print(x_train.shape, y_train.shape)
+        return x_train, y_train
 
-    # Perform feature scaling on the training data
+    # print(x_train.shape, y_train.shape)
+    # return x_train, y_train
 
-    # X = data[features].astype(float)
-    X = data[features]
-    y = data.Target.astype(float)
+    # # Create test dataset
+    test_data = scaled_data[training_data_len - LOOK_BACKS:, :]
+    x_test = [test_data[i - LOOK_BACKS:i, 0] for i in range(LOOK_BACKS, len(test_data))]
+    x_test = np.array(x_test).reshape(-1, LOOK_BACKS, 1)
+    y_test = dataset[training_data_len:, :]
 
-    if len(features) == 1:
-        X = np.array(X).reshape(-1, 1)
-    y = np.array(y).reshape(-1, 1)
-
-    X_scaled = scaler.fit_transform(X)
-    y_scaled = scaler.fit_transform(y)
-
-    # Split the scaled data into input-output pairs for training
-    train_x = []
-    train_y = []
-
-    # Creating Time Slots
-    for i in range(N_PAST, len(X_scaled) - N_FUTURE + 1):
-        train_x.append(X_scaled[i - N_PAST:i, 0:X_scaled.shape[1]])
-        train_y.append(y_scaled[i + N_FUTURE - 1:i + N_FUTURE])
-
-    # Convert Time Slots to numpy
-    train_x = np.array(train_x)
-    train_y = np.array(train_y)
-
-    # Reshape the training arrays if only one feature is used
-    # if len(features) == 1:
-    #     train_x = train_x.reshape(-1, 1)
-    #     train_y = train_y.reshape(-1, 1)
-
-    # Print the shape of the training data for debugging purposes
-    print(train_x.shape, train_y.shape)
-
-    return train_x, train_y, scaler
+    print(x_train.shape, y_train.shape, x_test.shape, y_test.shape)
+    return x_train, y_train, x_test, y_test
